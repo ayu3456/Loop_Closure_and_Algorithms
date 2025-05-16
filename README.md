@@ -1,80 +1,152 @@
-# Loop Closure Detection with Random Forest and CNN
+# ORB-SLAM3 Python Implementation
 
-This repository implements loop closure detection using a combination of traditional computer vision techniques (SIFT features) and deep learning (CNN features), enhanced with Random Forest classification.
+A Python implementation of ORB-SLAM3 with real-time visualization. This project provides a lightweight version of the SLAM system with focus on monocular tracking and visualization.
 
 ## Features
 
-- **Hybrid Feature Extraction**:
-  - SIFT features for local feature matching
-  - CNN features (ResNet18) for global image similarity
-  - Random Forest classification for robust loop closure detection
+- Real-time monocular SLAM
+- ORB feature detection and tracking
+- Scale-consistent motion estimation
+- Real-time 3D trajectory visualization
+- Support for video files and image sequences
+- Camera pose estimation with essential matrix decomposition
+- Interactive 3D visualization with camera frustum
 
-- **Key Components**:
-  - `random_forest_loop_closure.py`: Base implementation using SIFT and Random Forest
-  - `cnn_loop_closure.py`: Enhanced implementation adding CNN features
-  - Visualization of detected loop closures
+## Project Structure
 
-## Requirements
-
-```bash
-numpy>=1.21.0
-opencv-python>=4.5.3
-scikit-learn>=0.24.2
-scipy>=1.7.0
-matplotlib>=3.4.2
-torch>=1.9.0
-torchvision>=0.10.0
-Pillow>=8.3.1
+```
+orbslam_in_python/
+├── config/
+│   └── camera_config.yaml    # Camera calibration parameters
+├── data/
+│   └── rgbd_dataset_freiburg1_xyz/  # Example dataset
+├── src/
+│   ├── system.py            # Main SLAM system
+│   ├── tracking.py          # Feature tracking and pose estimation
+│   ├── mapping.py           # Mapping module (basic implementation)
+│   └── run_slam.py          # Main script to run the system
+└── requirements.txt         # Python dependencies
 ```
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/ayu3456/Loop_Closure_and_Algorithms.git
-cd Loop_Closure_and_Algorithms
+git clone https://github.com/yourusername/orbslam_in_python.git
+cd orbslam_in_python
 ```
 
-2. Install dependencies:
+2. Create and activate a virtual environment (optional but recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-1. Run the basic Random Forest implementation:
+### Running with Image Sequence
+
 ```bash
-python random_forest_loop_closure.py
+python src/run_slam.py --config config/camera_config.yaml --input path/to/image/sequence --viz_delay 0.05
 ```
 
-2. Run the CNN-enhanced version:
+### Running with Video File
+
 ```bash
-python cnn_loop_closure.py
+python src/run_slam.py --config config/camera_config.yaml --input path/to/video.mp4 --viz_delay 0.05
 ```
 
-## Algorithm Details
+### Running with Webcam
 
-### Random Forest Implementation
-- Uses SIFT features for keypoint detection and description
-- Matches features using FLANN-based matcher
-- Applies geometric verification with RANSAC
-- Uses Random Forest for classification
+```bash
+python src/run_slam.py --config config/camera_config.yaml --input 0 --viz_delay 0.05
+```
 
-### CNN Enhancement
-- Uses ResNet18 pre-trained on ImageNet
-- Extracts global image features
-- Combines CNN similarity with Random Forest predictions
-- Improved confidence scoring system
+### Command Line Arguments
 
-## Results
+- `--config`: Path to camera configuration file (YAML)
+- `--input`: Path to input source (video file, image directory, or camera index)
+- `--output`: Optional path to save trajectory (as .npy file)
+- `--viz_delay`: Delay between frames for visualization (seconds)
 
-The system detects loop closures with:
-- High confidence scores (0.507-0.765)
-- Strong inlier ratios (0.305-0.425)
-- Robust performance across different viewpoints
+## Example Dataset
 
-## Output
+The system has been tested with the TUM RGB-D dataset (freiburg1_xyz sequence). You can download it from:
+https://vision.in.tum.de/data/datasets/rgbd-dataset/download
 
-- Visualizations saved in `output/` directory
-- Detailed confidence scores and inlier ratios for each detection
-- Frame pair matching visualization 
+## Visualization
+
+The system provides two visualization windows:
+
+1. **Feature Visualization** (OpenCV window)
+   - Green dots: Detected ORB features
+   - Coordinate axes: Current camera orientation
+   - Press 'q' to quit
+
+2. **3D Trajectory** (Matplotlib window)
+   - Blue line: Camera trajectory
+   - Red dot: Current camera position
+   - Green frustum: Camera orientation
+   - Interactive 3D view (rotate, zoom)
+
+## Dependencies
+
+- OpenCV (cv2)
+- NumPy
+- Matplotlib
+- PyYAML
+
+## Configuration
+
+The camera parameters can be configured in `config/camera_config.yaml`:
+
+```yaml
+Camera:
+  # Camera matrix parameters
+  fx: 517.306408
+  fy: 516.469215
+  cx: 318.643040
+  cy: 255.313989
+
+  # Distortion coefficients
+  k1: 0.262383
+  k2: -0.953104
+  p1: -0.005358
+  p2: 0.002628
+  k3: 1.163314
+
+  # Image dimensions
+  width: 640
+  height: 480
+```
+
+## Limitations
+
+- Monocular-only implementation (no stereo or RGB-D support)
+- Basic mapping functionality
+- No loop closure
+- Scale drift may occur in long sequences
+
+## Contributing
+
+Feel free to open issues or submit pull requests for improvements. Some areas that could be enhanced:
+
+- Loop closure detection
+- Local bundle adjustment
+- Keyframe management
+- Map point culling
+- Multi-threading support
+
+## License
+
+MIT License - feel free to use and modify as needed.
+
+## Acknowledgments
+
+This implementation is inspired by the original ORB-SLAM3 paper:
+"ORB-SLAM3: An Accurate Open-Source Library for Visual, Visual-Inertial and Multi-Map SLAM" 
